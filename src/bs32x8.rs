@@ -151,9 +151,9 @@ pub(crate) fn implied_vol_f32x8(
     years_to_expiry: f32x8,
     diff_threshold: f32,
     max_iterations: i32,
-    initial_volatility: f32
+    initial_volatility: f32x8
 ) -> f32x8 {
-    let mut volatility = f32x8::splat(initial_volatility);
+    let mut volatility = initial_volatility;
     let mut count = 0;
 
     // Apply the Newton-Raphon Method
@@ -337,7 +337,7 @@ mod tests {
                 years_to_expiry.into(),
                 0.00001,
                 5,
-                0.2
+                (0.2).into()
             )
         );
         println!("Put {} IV {:?}", put_price, v[0]);
@@ -373,7 +373,7 @@ mod tests {
                 years_to_expiry.into(),
                 0.00001,
                 5,
-                0.2
+                (0.2).into()
             )
         );
         println!("Put {} IV {:?}", call_price, v[0]);
