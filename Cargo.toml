@@ -1,5 +1,5 @@
 [package]
-name = "simd-vol"
+name = "simd_vol"
 version = "0.1.0"
 edition = "2021"
 

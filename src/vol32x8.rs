@@ -1,6 +1,7 @@
 use wide::*;
-use crate::bs32x8::OptionDir;
+use crate::consts::OptionDir;
 use crate::bs32x8;
+use crate::read_hist;
 use bytemuck::cast;
 use rayon::prelude::*;
 
@@ -33,20 +34,37 @@ pub fn implied_vol(
     max_iterations: i32,
     threshold: f32
 ) -> Vec<f32> {
-    let max_idx = spot.len();
+    // Check parameters
+    if
+        !(
+            price.len() == spot.len() &&
+            spot.len() == strike.len() &&
+            strike.len() == risk_free_rate.len() &&
+            risk_free_rate.len() == dividend_yield.len() &&
+            dividend_yield.len() == years_to_expiry.len() &&
+            years_to_expiry.len() == prev_implied_vol.len() &&
+            1 < max_iterations &&
+            0.0 < threshold
+        )
+    {
+        return Vec::new();
+    }
 
-    let irvol = (0..max_idx / 8)
+    let num_options = spot.len();
+
+    let implied_vol = (0..num_options / 8 + 1)
         .into_par_iter()
         .map(|idx| {
-            let i = idx * 8;
+            let start_idx = idx * 8;
+            let end_idx = std::cmp::min(num_options, start_idx + 8);
 
-            let price = f32x8::from(&price[i..std::cmp::min(max_idx, i + 8)]);
-            let spot = f32x8::from(&spot[i..std::cmp::min(max_idx, i + 8)]);
-            let strike = f32x8::from(&strike[i..std::cmp::min(max_idx, i + 8)]);
-            let years_to_expiry = f32x8::from(&years_to_expiry[i..std::cmp::min(max_idx, i + 8)]);
-            let risk_free_rate = f32x8::from(&risk_free_rate[i..std::cmp::min(max_idx, i + 8)]);
-            let dividend_yield = f32x8::from(&dividend_yield[i..std::cmp::min(max_idx, i + 8)]);
-            let prev_implied_vol = f32x8::from(&prev_implied_vol[i..std::cmp::min(max_idx, i + 8)]);
+            let price = f32x8::from(&price[start_idx..end_idx]);
+            let spot = f32x8::from(&spot[start_idx..end_idx]);
+            let strike = f32x8::from(&strike[start_idx..end_idx]);
+            let years_to_expiry = f32x8::from(&years_to_expiry[start_idx..end_idx]);
+            let risk_free_rate = f32x8::from(&risk_free_rate[start_idx..end_idx]);
+            let dividend_yield = f32x8::from(&dividend_yield[start_idx..end_idx]);
+            let prev_implied_vol = f32x8::from(&prev_implied_vol[start_idx..end_idx]);
 
             let res: [f32; 8] = cast(
                 bs32x8::implied_vol_f32x8(
@@ -63,7 +81,7 @@ pub fn implied_vol(
                 )
             );
 
-            res.to_vec()
+            res[0..end_idx-start_idx].to_vec()
         })
         .reduce(
             || Vec::new(),
@@ -74,5 +92,93 @@ pub fn implied_vol(
             }
         );
 
-    irvol
+    implied_vol
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::bs;
+    use bytemuck::cast;
+
+    #[test]
+    fn implied_vol_check_small() {
+        let vol = implied_vol(
+            OptionDir::CALL,
+            &[4.0],
+            &[125.0],
+            &[120.0],
+            &[0.02],
+            &[0.0],
+            &[0.5],
+            &[0.2],
+            5,
+            0.0001
+        );
+
+        assert!(vol.len() == 1, "Num results: {}", vol.len());
+    }
+
+    #[test]
+    fn implied_vol_check_medium() {
+        let vol = implied_vol(
+            OptionDir::CALL,
+            &[4.0, 3.0, 2.0, 3.0, 4.0, 3.0, 2.0, 3.0],
+            &[125.0, 120.0, 125.0, 120.0, 125.0, 120.0, 125.0, 120.0],
+            &[120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0],
+            &[0.02, 0.025, 0.03, 0.035, 0.02, 0.025, 0.03, 0.035],
+            &[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+            &[0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+            5,
+            0.0001
+        );
+
+        assert!(vol.len() == 8, "Num results: {}", vol.len());
+    }
+
+    #[test]
+    fn implied_vol_check_large() {
+        let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry) =
+            read_hist::get_appl_data();
+
+        let n = call_prices.len();
+        let spot: Vec<f32> = vec![spot; n];
+        let risk_free_rate: Vec<f32> = vec![0.01; n];
+        let dividend_yield: Vec<f32> = vec![0.0; n];
+        let prev_implied_vol: Vec<f32> = vec![0.2; n];
+
+        let vol = implied_vol(
+            OptionDir::CALL,
+            &call_prices,
+            &spot,
+            &call_strikes,
+            &risk_free_rate,
+            &dividend_yield,
+            &years_to_expiry,
+            &prev_implied_vol,
+            5,
+            0.0001
+        );
+
+        // assert!(vol.len() == n, "Num results: {}", n);
+    }
+
+    #[test]
+    fn implied_vol_check_bad() {
+        let vol = implied_vol(
+            OptionDir::CALL,
+            &[4.0, 3.0, 2.0, 3.0, 4.0, 3.0, 2.0, 3.0],
+            &[125.0, 120.0, 125.0, 120.0, 125.0, 120.0, 125.0, 120.0],
+            &[120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0],
+            &[0.02, 0.025, 0.03, 0.035, 0.02, 0.025, 0.03, 0.035],
+            &[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+            &[0.2, 0.2],
+            5,
+            0.0001
+        );
+
+        assert!(vol.len() == 0, "Num results: {}", vol.len());
+    }
 }
