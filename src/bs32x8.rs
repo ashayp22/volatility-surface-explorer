@@ -306,7 +306,7 @@ mod tests {
     fn check_put_iv_from_price() {
         let spot = 131.0;
         let strike = 115.0;
-        let years_to_expiry = 24.0 / 252.0;
+        let years_to_expiry = 2.5;
         let risk_free_rate = 0.001;
         let volatility = 0.419;
         let dividend_yield = 0.00625 * 12.0;

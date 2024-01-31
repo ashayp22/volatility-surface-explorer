@@ -4,6 +4,7 @@ use crate::bs32x8;
 use crate::read_hist;
 use bytemuck::cast;
 use rayon::prelude::*;
+use wasm_bindgen::prelude::*;
 
 /* 
     Source: https://github.com/ronniec95/black_scholes
@@ -22,6 +23,7 @@ use rayon::prelude::*;
     to 1 per price/spot/strike combination. Generally, the algorithm converges between 2-3 iterations.
 */
 
+#[wasm_bindgen]
 pub fn implied_vol(
     option_dir: OptionDir,
     price: &[f32],
@@ -161,7 +163,7 @@ mod tests {
             0.0001
         );
 
-        // assert!(vol.len() == n, "Num results: {}", n);
+        assert!(vol.len() == n, "Num results: {}", n);
     }
 
     #[test]

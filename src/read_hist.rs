@@ -1,6 +1,9 @@
 use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
+use wasm_bindgen::prelude::*;
+use serde::{ Serialize, Deserialize };
+use serde_json;
 
 // The output is wrapped in a Result to allow matching on errors.
 // Returns an Iterator to the Reader of the lines of the file.
@@ -93,4 +96,33 @@ pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>
     }
 
     return (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry);
+}
+
+#[derive(Serialize, Deserialize)]
+struct HistoricalData {
+    spot: f32,
+    // call_prices: Vec<f32>,
+    // call_strikes: Vec<f32>,
+    // put_prices: Vec<f32>,
+    // put_strikes: Vec<f32>,
+    // years_to_expiry: Vec<f32>,
+}
+
+pub fn print_appl_data() {
+    let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry) =
+        get_appl_data();
+
+    let data = HistoricalData {
+        spot: spot,
+        // call_prices: call_prices,
+        // call_strikes: call_strikes,
+        // put_prices: put_prices,
+        // put_strikes: put_strikes,
+        // years_to_expiry: years_to_expiry,
+    };
+
+    let json_string = serde_json::to_string(&data).expect("Failed to serialize to JSON");
+
+    // Print the JSON string
+    println!("{}", json_string);
 }

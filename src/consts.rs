@@ -1,6 +1,9 @@
+use wasm_bindgen::prelude::*;
+
 /// Specify whether an option is put or call
+#[wasm_bindgen]
 #[derive(PartialEq, Debug, Copy, Clone, PartialOrd)]
 pub enum OptionDir {
-    CALL = 1,
-    PUT = -1,
+    CALL = 2,
+    PUT = 1,
 }
