@@ -4,6 +4,7 @@ use std::path::Path;
 use wasm_bindgen::prelude::*;
 use serde::{ Serialize, Deserialize };
 use serde_json;
+use std::io::prelude::*;
 
 // The output is wrapped in a Result to allow matching on errors.
 // Returns an Iterator to the Reader of the lines of the file.
@@ -11,6 +12,23 @@ use serde_json;
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>> where P: AsRef<Path> {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
+}
+
+fn write_lines(filename: &str, data: String) {
+    let path = Path::new(filename);
+    let display = path.display();
+
+    // Open a file in write-only mode, returns `io::Result<File>`
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+
+    // Write the string to `file`, returns `io::Result<()>`
+    match file.write_all(data.as_bytes()) {
+        Err(why) => panic!("couldn't write to {}: {}", display, why),
+        Ok(_) => println!("successfully wrote to {}", display),
+    }
 }
 
 fn get_days_from_jan(month: &str) -> f32 {
@@ -101,11 +119,11 @@ pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>
 #[derive(Serialize, Deserialize)]
 struct HistoricalData {
     spot: f32,
-    // call_prices: Vec<f32>,
-    // call_strikes: Vec<f32>,
-    // put_prices: Vec<f32>,
-    // put_strikes: Vec<f32>,
-    // years_to_expiry: Vec<f32>,
+    call_prices: Vec<f32>,
+    call_strikes: Vec<f32>,
+    put_prices: Vec<f32>,
+    put_strikes: Vec<f32>,
+    years_to_expiry: Vec<f32>,
 }
 
 pub fn print_appl_data() {
@@ -114,15 +132,17 @@ pub fn print_appl_data() {
 
     let data = HistoricalData {
         spot: spot,
-        // call_prices: call_prices,
-        // call_strikes: call_strikes,
-        // put_prices: put_prices,
-        // put_strikes: put_strikes,
-        // years_to_expiry: years_to_expiry,
+        call_prices: call_prices,
+        call_strikes: call_strikes,
+        put_prices: put_prices,
+        put_strikes: put_strikes,
+        years_to_expiry: years_to_expiry,
     };
 
     let json_string = serde_json::to_string(&data).expect("Failed to serialize to JSON");
 
     // Print the JSON string
     println!("{}", json_string);
+
+    write_lines("data/aapl.json", json_string);
 }

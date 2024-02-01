@@ -150,44 +150,47 @@ pub(crate) fn implied_vol_f32x8(
     let mut volatility = initial_volatility;
     let mut count = 0;
 
-    // Apply the Newton-Raphon Method
+    // Min volatility of 0%, max volatility of 500%
+    let mut low = f32x8::splat(0.0);
+    let mut high = f32x8::splat(5.0);
+    let two_f32x8 = f32x8::splat(2.0);
+    let one_f32x8 = f32x8::splat(1.0);
+
+    // Run bisection method
     loop {
+        let mask = (high - low).abs().cmp_lt(f32x8::splat(diff_threshold));
+        if mask.all() {
+            break;
+        }
+
+        let middle = (high + low) / two_f32x8;
+
         let option_value = price_f32x8(
             option_dir,
             spot,
             strike,
-            volatility,
+            middle,
             risk_free_rate,
             dividend_yield,
             years_to_expiry
         );
-        let diff = option_value - price;
-        let mask = diff.abs().cmp_lt(f32x8::splat(diff_threshold));
-        if mask.all() {
-            break;
-        }
-        let derivative = vega_f32x8(
-            spot,
-            strike,
-            volatility,
-            risk_free_rate,
-            dividend_yield,
-            years_to_expiry
-        );
-        // let derivative = derivative.max(f32x8::ONE);
-        let bump_value = diff / derivative;
-        volatility = volatility - bump_value;
+
+        // 0 if diff is positive, 1 if diff is negative
+        // 0 means we need to update high, 1 means we need to update low
+        let is_positive_diff = (option_value - price).cmp_lt(f32x8::splat(0.0)).is_nan().min(f32x8::splat(1.0));
+        let is_negative_diff = one_f32x8 - is_positive_diff;
+
+        low = is_positive_diff * middle + is_negative_diff * low;
+        high = is_negative_diff * middle + is_positive_diff * high;
+
         if count > max_iterations {
             break;
         } else {
             count = count + 1;
         }
     }
-    let vol_mask = volatility.cmp_gt(f32x8::ZERO);
-    volatility = vol_mask.blend(volatility, f32x8::ZERO);
-    let price_mask = price.cmp_eq(f32x8::ZERO);
-    volatility = price_mask.blend(f32x8::ZERO, volatility);
-    volatility
+
+    (high + low) / two_f32x8
 }
 
 #[cfg(test)]
@@ -298,7 +301,7 @@ mod tests {
                     years_to_expiry.into()
                 )
             );
-            assert!((actual[0] - expected).abs() < 100.0);
+            assert!((actual[0] - expected).abs() < 1.0);
         }
     }
 
@@ -307,7 +310,7 @@ mod tests {
         let spot = 131.0;
         let strike = 115.0;
         let years_to_expiry = 2.5;
-        let risk_free_rate = 0.001;
+        let risk_free_rate = 0.01;
         let volatility = 0.419;
         let dividend_yield = 0.00625 * 12.0;
 
@@ -330,7 +333,7 @@ mod tests {
                 dividend_yield.into(),
                 years_to_expiry.into(),
                 0.00001,
-                5,
+                20,
                 (0.2).into()
             )
         );
@@ -343,7 +346,7 @@ mod tests {
         let spot = 131.0;
         let strike = 115.0;
         let years_to_expiry = 24.0 / 252.0;
-        let risk_free_rate = 0.001;
+        let risk_free_rate = 0.01;
         let volatility = 0.419;
         let dividend_yield = 0.00625 * 12.0;
 
@@ -366,11 +369,36 @@ mod tests {
                 dividend_yield.into(),
                 years_to_expiry.into(),
                 0.00001,
-                5,
+                100,
                 (0.2).into()
             )
         );
-        println!("Put {} IV {:?}", call_price, v[0]);
+        println!("Call {} IV {:?}", call_price, v[0]);
         assert!((v[0] - volatility).abs() < 0.00001);
+    }
+
+    #[test]
+    fn check_call_iv_from_price_2() {
+        let spot = 546.0255;
+        let strike = 490.0;
+        let years_to_expiry = 0.030136986;
+        let risk_free_rate = 0.01;
+        let dividend_yield = 0.0;
+
+        let v: [f32; 8] = cast(
+            implied_vol_f32x8(
+                OptionDir::CALL,
+                (55.45).into(),
+                spot.into(),
+                strike.into(),
+                risk_free_rate.into(),
+                dividend_yield.into(),
+                years_to_expiry.into(),
+                0.00001,
+                100,
+                (0.2).into()
+            )
+        );
+        assert!((v[0] - 0.0).abs() < 0.00001);
     }
 }
