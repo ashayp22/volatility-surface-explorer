@@ -27,9 +27,6 @@ function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
     const y = []
     const z = []
 
-    const seenX = new Set();
-    const seenY = new Set();
-
     // Normalize all values
     for (let i = 0; i < strikes.length; i++) {
         if (impl_vol[i] < 0.0001) {
@@ -39,13 +36,6 @@ function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
         const roundedX = roundTo2DecimalPlaces(strikes[i]);
         const roundedY = roundTo2DecimalPlaces(years_to_expiry[i] * 365);
         const roundedZ = roundTo2DecimalPlaces(impl_vol[i]);
-
-        if (seenX.has(roundedX) && seenY.has(roundedY)) {
-            continue;
-        }
-
-        // seenX.add(roundedX);
-        // seenY.add(roundedY)
 
         x.push((roundedX).toString());
         y.push((roundedY).toString());
@@ -189,10 +179,10 @@ function plot3D(call_prices, put_prices, call_strikes, put_strikes, years_to_exp
 
     var data = [{
         "type": "mesh3d",
-        'intensity': [...callZ],
-        x: [...callX],
-        y: [...callY],
-        z: [...callZ],
+        'intensity': callZ,
+        x: callX,
+        y: callY,
+        z: callZ,
         'autocolorscale': false,
         "colorscale": [
             [0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,191,118)"], [
