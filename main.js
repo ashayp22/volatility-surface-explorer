@@ -1,308 +1,81 @@
 import init, { OptionDir, implied_vol } from "./pkg/simd_vol.js";
 import { AAPL_DATA } from "./js/data.js";
+import { plot2D, plot3D } from "./js/plot.js";
 
-function get2DFromImpliedVolatility(strikes, impl_vol, years_to_expiry, time) {
-    const x = [];
-    const y = [];
-
-
-    // Normalize all values
-    for (let i = 0; i < strikes.length; i++) {
-        if (years_to_expiry[i] != time || impl_vol[i] < 0.001) {
-            continue;
-        }
-        x.push(strikes[i]);
-        y.push(impl_vol[i])
-    }
-
-    return { x, y };
-}
-
-function roundTo2DecimalPlaces(num) {
-    return (Math.round(num * 100)) / 100
-}
-
-function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
-    const x = []
-    const y = []
-    const z = []
-
-    // Normalize all values
-    for (let i = 0; i < strikes.length; i++) {
-        if (impl_vol[i] < 0.0001) {
-            continue;
-        }
-
-        const roundedX = roundTo2DecimalPlaces(strikes[i]);
-        const roundedY = roundTo2DecimalPlaces(years_to_expiry[i] * 365);
-        const roundedZ = roundTo2DecimalPlaces(impl_vol[i]);
-
-        x.push((roundedX).toString());
-        y.push((roundedY).toString());
-        z.push((roundedZ).toString());
-    }
-
-    return { x, y, z };
-}
-
-function plot2D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots) {
-    const times = [0.030136986, 0.115068495, 0.18630137, 0.27671233, 0.35890412, 0.61095893, 1.1150684, 2.1150684]
-    const titles = ["Expiry: Dec 2013", "Expiry: Jan 2014", "Expiry: Feb 2014", "Expiry: Mar 2014", "Expiry: Apr 2014", "Expiry: Jul 2014", "Expiry: Jan 2015", "Expiry: Jan 2016"]
-
-    for (let i = 0; i < times.length; i++) {
-        const call_impl_vol =
-            implied_vol(
-                OptionDir.CALL,
-                call_prices,
-                spots,
-                call_strikes,
-                interest_rates,
-                dividend_yields,
-                years_to_expiry,
-                prev_vol,
-                25,
-                0.0001
-            )
-
-        const put_impl_vol =
-            implied_vol(
-                OptionDir.PUT,
-                put_prices,
-                spots,
-                put_strikes,
-                interest_rates,
-                dividend_yields,
-                years_to_expiry,
-                prev_vol,
-                25,
-                0.0001
-            )
-
-        const { x: call_x, y: call_y } = get2DFromImpliedVolatility(call_strikes, call_impl_vol, years_to_expiry, times[i]);
-        const { x: put_x, y: put_y } = get2DFromImpliedVolatility(put_strikes, put_impl_vol, years_to_expiry, times[i]);
-
-        const call = {
-            x: call_x,
-            y: call_y,
-            mode: 'markers',
-            type: 'scatter',
-        };
-
-        const put = {
-            x: put_x,
-            y: put_y,
-            mode: 'markers',
-            type: 'scatter',
-        };
-
-        var layout = {
-            title: titles[i],
-            scene: {
-                xaxis: { title: 'Strike Price' },
-                yaxis: { title: 'Implied Volatility' }
-            },
-        };
-
-        const data = [call, put];
-        Plotly.newPlot(`myDiv${i}`, data, layout);
-    }
-}
-
-function plot3D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots) {
-    const call_impl_vol =
-        implied_vol(
-            OptionDir.CALL,
-            call_prices,
-            spots,
-            call_strikes,
-            interest_rates,
-            dividend_yields,
-            years_to_expiry,
-            prev_vol,
-            20,
-            0.0001
-        )
-
-    const put_impl_vol =
-        implied_vol(
-            OptionDir.PUT,
-            put_prices,
-            spots,
-            put_strikes,
-            interest_rates,
-            dividend_yields,
-            years_to_expiry,
-            prev_vol,
-            20,
-            0.0001
-        )
-
-    const { x: callX, y: callY, z: callZ } = get3DFromImpliedVolatility(call_strikes, call_impl_vol, years_to_expiry);
-    const { x: putX, y: putY, z: putZ } = get3DFromImpliedVolatility(put_strikes, put_impl_vol, years_to_expiry);
-
-    console.log(call_strikes);
-    console.log(years_to_expiry);
-    console.log(call_impl_vol);
-
-    // var data = [{
-    //     "mode": "markers",
-    //     "type": "scatter3d",
-    //     x: [...callX, ...putX],
-    //     y: [...callY, ...putY],
-    //     z: [...callZ, ...putZ],
-    //     'connectgaps': true,
-    //     'line': { 'smoothing': '1' },
-    //     'contours': { 'coloring': "contour" },
-    //     'autocolorscale': false,
-    //     "colorscale": [
-    //         [0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,191,118)"],
-    //         [0.5, "rgb(37,180,167)"], [0.65, "rgb(17,123,215)"], [1, "rgb(54,50,153)"],
-    //     ],
-    //     "reversescale": true,
-    // }];
-
-    // var data = [{
-    //     "type": "surface",
-    //     x: [...callX],
-    //     y: [...callY],
-    //     z: [...callZ],
-    //     'connectgaps': true,
-    //     'line': { 'smoothing': '1' },
-    //     'contours': { 'coloring': 'contour' },
-    //     'autocolorscale': false,
-    //     "colorscale": [
-    //         [0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,191,118)"],
-    //         [0.5, "rgb(37,180,167)"], [0.65, "rgb(17,123,215)"], [1, "rgb(54,50,153)"],
-    //     ],
-    //     "reversescale": true,
-    // }];
-
-    var data = [{
-        "type": "mesh3d",
-        'intensity': callZ,
-        x: callX,
-        y: callY,
-        z: callZ,
-        'autocolorscale': false,
-        "colorscale": [
-            [0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,191,118)"], [
-                0.5, "rgb(37,180,167)"], [0.65, "rgb(17,123,215)"], [1, "rgb(54,50,153)"],
-        ],
-        "lighting": {
-            "ambient": 1,
-            "diffuse": 0.9,
-            "fresnel": 0.5,
-            "roughness": 0.9,
-            "specular": 2
-        },
-        "flatshading": true,
-        "reversescale": true,
-    }];
-
-    var layout = {
-        title: `Volatility Surface Explorer for APPL Current Price ${spots[0]}`,
-        scene: {
-            camera: { eye: { x: -1.5, y: -1.5, z: 1 } },
-            xaxis: { title: 'Strike Price' },
-            yaxis: { title: 'Years to Expiry' },
-            zaxis: { title: 'Implied Volatility' }
-        },
-        autosize: false,
-        width: 800,
-        height: 800,
-        margin: {
-            l: 65,
-            r: 50,
-            b: 65,
-            t: 90,
-        }
-    };
-
-    Plotly.newPlot('info3d', data, layout);
-}
+var spot;
+var call_prices;
+var put_prices;
+var call_strikes;
+var put_strikes;
+var years_to_expiry;
+var names;
+var call_prices;
+var interest_rate = 0.01;
+var dividend_yield = 0.0;
+var prev_vol = [];
+var isCall = true;
 
 init().then(() => {
-    const call_prices = AAPL_DATA.call_prices;
-    const put_prices = AAPL_DATA.put_prices;
-    const call_strikes = AAPL_DATA.call_strikes;
-    const put_strikes = AAPL_DATA.put_strikes;
-    const years_to_expiry = AAPL_DATA.years_to_expiry;
-    const n = years_to_expiry.length;
+    call_prices = AAPL_DATA.call_prices;
+    put_prices = AAPL_DATA.put_prices;
+    call_strikes = AAPL_DATA.call_strikes;
+    put_strikes = AAPL_DATA.put_strikes;
+    years_to_expiry = AAPL_DATA.years_to_expiry;
+    names = AAPL_DATA.names;
+    prev_vol = Array(call_prices.length).fill(1.0);
+    spot = AAPL_DATA.spot;
 
-    const prev_vol = Array(n).fill(1.0);
-    const interest_rates = Array(n).fill(0.01);
-    const dividend_yields = Array(n).fill(0.0);
-    const spots = Array(n).fill(AAPL_DATA.spot);
-
-    plot2D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots);
-    plot3D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots);
-
-    // var scene = new THREE.Scene();
-    // var camera = new THREE.PerspectiveCamera(60, 1, 1, 1000);
-    // camera.position.setScalar(150);
-    // var renderer = new THREE.WebGLRenderer({
-    //     antialias: true
-    // });
-    // var canvas = renderer.domElement;
-    // document.body.appendChild(canvas);
-
-    // var controls = new THREE.OrbitControls(camera, canvas);
-
-    // var light = new THREE.DirectionalLight(0xffffff, 1.5);
-    // light.position.setScalar(100);
-    // scene.add(light);
-    // scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-    // var geom = new THREE.BufferGeometry().setFromPoints(points3d);
-    // var cloud = new THREE.Points(
-    //     geom,
-    //     new THREE.PointsMaterial({ color: 0x99ccff, size: 2 })
-    // );
-    // scene.add(cloud);
-
-    // // Triangulate x and z 
-    // var indexDelaunay = Delaunator.from(
-    //     points3d.map(v => {
-    //         return [v.x, v.z];
-    //     })
-    // );
-
-    // var meshIndex = []; // Use the delaunay index to create a flat surface
-    // for (let i = 0; i < indexDelaunay.triangles.length; i++) {
-    //     meshIndex.push(indexDelaunay.triangles[i]);
-    // }
-
-    // geom.setIndex(meshIndex); // Apply three.js index to the existing geometry
-    // geom.computeVertexNormals();
-    // var mesh = new THREE.Mesh(
-    //     geom, // Re-use the existing geometry
-    //     new THREE.MeshLambertMaterial({ color: "purple", wireframe: true })
-    // );
-    // scene.add(mesh);
-
-    // var gui = new dat.GUI();
-    // gui.add(mesh.material, "wireframe");
-
-    // render();
-
-    // function resize(renderer) {
-    //     const canvas = renderer.domElement;
-    //     const width = canvas.clientWidth;
-    //     const height = canvas.clientHeight;
-    //     const needResize = canvas.width !== width || canvas.height !== height;
-    //     if (needResize) {
-    //         renderer.setSize(width, height, false);
-    //     }
-    //     return needResize;
-    // }
-
-    // function render() {
-    //     if (resize(renderer)) {
-    //         camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    //         camera.updateProjectionMatrix();
-    //     }
-    //     renderer.render(scene, camera);
-    //     requestAnimationFrame(render);
-    // }
+    update();
+    // // plot2D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots);
 });
+
+function handleOptionTypeChange() {
+    var selectedValue = document.getElementById("optionSelect").value;
+    isCall = selectedValue === "Call";
+    update();
+}
+
+function handleInterestRateChange() {
+    var selectedValue = document.getElementById("interestRate").value;
+    interest_rate = parseInt(selectedValue, 10) / 100.0;
+    update();
+}
+
+function handleDividendYieldChange() {
+    var selectedValue = document.getElementById("dividendYield").value;
+    dividend_yield = parseInt(selectedValue, 10) / 100.0;
+    update();
+}
+
+document.getElementById("optionSelect").addEventListener("change", handleOptionTypeChange);
+document.getElementById("interestRate").addEventListener("input", handleInterestRateChange);
+document.getElementById("dividendYield").addEventListener("input", handleDividendYieldChange);
+
+function update() {
+    document.getElementById("interestRateText").textContent = `Interest Rate: ${interest_rate}%`;
+    document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${dividend_yield}%`;
+
+    const n = years_to_expiry.length;
+    const interest_rates = Array(n).fill(interest_rate);
+    const dividend_yields = Array(n).fill(dividend_yield);
+    const spots = Array(n).fill(spot);
+    const strikes = isCall ? call_strikes : put_strikes;
+    const prices = isCall ? call_prices : put_prices;
+
+    prev_vol = implied_vol(
+        isCall ? OptionDir.CALL : OptionDir.PUT,
+        prices,
+        spots,
+        strikes,
+        interest_rates,
+        dividend_yields,
+        years_to_expiry,
+        prev_vol,
+        20,
+        0.0001
+    );
+
+    plot3D(prev_vol, names, spot, strikes, years_to_expiry);
+}
+
 

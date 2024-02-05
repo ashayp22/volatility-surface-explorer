@@ -141,7 +141,7 @@ mod tests {
 
     #[test]
     fn implied_vol_check_large() {
-        let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry) =
+        let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry, _) =
             read_hist::get_appl_data();
 
         let n = call_prices.len();
@@ -183,10 +183,4 @@ mod tests {
 
         assert!(vol.len() == 0, "Num results: {}", vol.len());
     }
-
-    // #[test]
-    // fn test() {
-    //     read_hist::print_appl_data();
-    //     assert!(false);
-    // }
 }

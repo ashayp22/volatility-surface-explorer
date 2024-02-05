@@ -49,7 +49,7 @@ fn get_days_from_jan(month: &str) -> f32 {
     }
 }
 
-pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>) {
+pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<String>) {
     let mut spot = 0.0;
     let mut today: f32 = 0.0;
     let mut current_year = 2000;
@@ -58,6 +58,7 @@ pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>
     let mut put_prices: Vec<f32> = Vec::new();
     let mut put_strikes: Vec<f32> = Vec::new();
     let mut years_to_expiry: Vec<f32> = Vec::new();
+    let mut names: Vec<String> = Vec::new();
 
     let mut line_counter = 0;
 
@@ -84,8 +85,13 @@ pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>
                     continue;
                 }
 
-                // Parse time to expiry and spot
+                // Parse name
                 let date_price = split_line[0].split(" ").collect::<Vec<&str>>();
+                let name = date_price[3];
+
+                names.push(name.to_string());
+
+                // Parse time to expiry and spot
                 let strike: f32 = date_price[2].parse().unwrap();
 
                 if strike <= 0.0 {
@@ -113,29 +119,31 @@ pub fn get_appl_data() -> (f32, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>
         }
     }
 
-    return (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry);
+    return (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry, names);
 }
 
 #[derive(Serialize, Deserialize)]
 struct HistoricalData {
-    spot: f32,
     call_prices: Vec<f32>,
     call_strikes: Vec<f32>,
+    names: Vec<String>,
     put_prices: Vec<f32>,
     put_strikes: Vec<f32>,
+    spot: f32,
     years_to_expiry: Vec<f32>,
 }
 
 pub fn print_appl_data() {
-    let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry) =
+    let (spot, call_prices, call_strikes, put_prices, put_strikes, years_to_expiry, names) =
         get_appl_data();
 
     let data = HistoricalData {
-        spot: spot,
         call_prices: call_prices,
         call_strikes: call_strikes,
+        names: names,
         put_prices: put_prices,
         put_strikes: put_strikes,
+        spot: spot,
         years_to_expiry: years_to_expiry,
     };
 
@@ -145,4 +153,10 @@ pub fn print_appl_data() {
     println!("{}", json_string);
 
     write_lines("data/aapl.json", json_string);
+}
+
+#[test]
+fn test() {
+    print_appl_data();
+    assert!(false);
 }

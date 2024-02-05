@@ -6,27 +6,47 @@
 </head>
 
 <script src='https://cdn.plot.ly/plotly-2.27.0.min.js'></script>
-<script src="./js/three.min.98.js"></script>
-<script src="./js/OrbitControls.js"></script>
-<script src="./js/delaunator.3.0.2.js"></script>
-<script src="./js/perlin.js"></script>
-<script src=" ./js/dat.gui.min.0.7.2.js"></script>
-
+<link href='https://fonts.googleapis.com/css?family=Noto Sans' rel='stylesheet'>
 <script type="module" src = "./js/data.js"></script>    
+<script type="module" src = "./js/calc.js"></script>    
+<script type="module" src = "./js/plot.js"></script>    
 <script type="module" src = "main.js"></script>    
 
 <body>
-    <div id ="info3d"></div>
 
-	  <div id="info"></div>
-    <div id='myDiv0'></div>
+  <div id="container">
+    <h1>Volatility Surface</h1>
+    <div id="optionsContainer">
+      <div id="optionTypeContainer">
+        <select name="optionType" id="optionSelect">
+          <option value="Call">Call</option>
+          <option value="Put">Put</option>
+        </select>
+      </div>
+
+      <div>
+        <p id="interestRateText">Interest Rate</p>
+        <input type="range" min="0" max="20" value="1" id="interestRate">
+      </div>
+
+      <div>
+        <p id="dividendYieldText">Dividend Yield</p>
+        <input type="range" min="0" max="20" value="0" id="dividendYield">
+      </div>
+
+    </div>
+    <div id ="info3d"></div>
+  </div>
+
+
+    <!-- <div id='myDiv0'></div>
     <div id='myDiv1'></div>
     <div id='myDiv2'></div>
     <div id='myDiv3'></div>
     <div id='myDiv4'></div>
     <div id='myDiv5'></div>
     <div id='myDiv6'></div>
-    <div id='myDiv7'></div>
+    <div id='myDiv7'></div> -->
 </body>
 
 </html>
