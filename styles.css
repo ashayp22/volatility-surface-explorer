@@ -3,7 +3,7 @@ body {
   height: 100%;
   margin: 0;
   font-family: "Noto Sans";
-  background-color: #e3e3e3;
+  background-color: #f3f3f3;
 }
 
 select {
@@ -11,31 +11,43 @@ select {
 }
 
 #container {
-  margin-top: 20px;
-  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   height: fit-content;
   display: flex;
   justify-content: center;
   width: 900px;
   align-items: center;
   flex-direction: column;
-  padding: 5px;
+  padding: 20px;
   border: 2px dashed black;
+  background: white;
+  border-radius: 25px;
 }
 
 #optionsContainer {
   display: flex;
   flex-direction: row;
-  justifyContent: center;
-  alignItems: center;
-  marginBottom: 10px;
-  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
 }
 
-#optionTypeContainer {
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0px;
+  text-decoration: underline;
+}
+
+.settingsContainer {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 canvas {
@@ -52,4 +64,10 @@ canvas {
 a {
   color: yellow;
   text-decoration: none;
+}
+
+#optionSelect {
+  width: 200px;
+  height: 25px;
+  border-radius: 4px;
 }

@@ -15,21 +15,23 @@
 <body>
 
   <div id="container">
-    <h1>Volatility Surface</h1>
+    <p class="title">Volatility Surface</p>
     <div id="optionsContainer">
-      <div id="optionTypeContainer">
+      <div class="settingsContainer">
+        <p>Option Settings</p>
         <select name="optionType" id="optionSelect">
           <option value="Call">Call</option>
           <option value="Put">Put</option>
         </select>
       </div>
+      
 
-      <div>
+      <div class="settingsContainer">
         <p id="interestRateText">Interest Rate</p>
         <input type="range" min="0" max="20" value="1" id="interestRate">
       </div>
 
-      <div>
+      <div class="settingsContainer">
         <p id="dividendYieldText">Dividend Yield</p>
         <input type="range" min="0" max="20" value="0" id="dividendYield">
       </div>
