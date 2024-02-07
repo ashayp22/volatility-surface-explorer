@@ -12,7 +12,6 @@ var names;
 var call_prices;
 var interest_rate = 0.01;
 var dividend_yield = 0.0;
-var prev_vol = [];
 var isCall = true;
 var time;
 var plotType = "mesh3d";
@@ -25,12 +24,10 @@ init().then(() => {
     put_strikes = AAPL_DATA.put_strikes;
     years_to_expiry = AAPL_DATA.years_to_expiry;
     names = AAPL_DATA.names;
-    prev_vol = Array(call_prices.length).fill(1.0);
     spot = AAPL_DATA.spot;
     time = AAPL_DATA.time;
 
     update();
-    // // plot2D(call_prices, put_prices, call_strikes, put_strikes, years_to_expiry, prev_vol, interest_rates, dividend_yields, spots);
 });
 
 function handleOptionTypeChange() {
@@ -89,7 +86,6 @@ function update() {
         interest_rates,
         dividend_yields,
         years_to_expiry,
-        prev_vol,
         20,
         0.0001
     );
@@ -102,14 +98,11 @@ function update() {
         interest_rates,
         dividend_yields,
         years_to_expiry,
-        prev_vol,
         20,
         0.0001
     );
 
-    prev_vol = isCall ? call_impl_vol : put_impl_vol;
-
-    plot3D(prev_vol, spot, strikes, years_to_expiry, time, plotType);
+    plot3D(isCall ? call_impl_vol : put_impl_vol, spot, strikes, years_to_expiry, time, plotType);
 
     if (shouldPlot2D) {
         plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry, put_impl_vol);

@@ -5,6 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# Comment out if you want benchmark to run/simd_vol importable into other files
 [lib]
 crate-type = ["cdylib"]
 

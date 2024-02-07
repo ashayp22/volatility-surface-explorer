@@ -145,9 +145,7 @@ pub(crate) fn implied_vol_f32x8(
     years_to_expiry: f32x8,
     diff_threshold: f32,
     max_iterations: i32,
-    initial_volatility: f32x8
 ) -> f32x8 {
-    let mut volatility = initial_volatility;
     let mut count = 0;
 
     // Min volatility of 0%, max volatility of 500%
@@ -333,8 +331,7 @@ mod tests {
                 dividend_yield.into(),
                 years_to_expiry.into(),
                 0.00001,
-                20,
-                (0.2).into()
+                20
             )
         );
         println!("Put {} IV {:?}", put_price, v[0]);
@@ -369,8 +366,7 @@ mod tests {
                 dividend_yield.into(),
                 years_to_expiry.into(),
                 0.00001,
-                100,
-                (0.2).into()
+                100
             )
         );
         println!("Call {} IV {:?}", call_price, v[0]);
@@ -395,8 +391,7 @@ mod tests {
                 dividend_yield.into(),
                 years_to_expiry.into(),
                 0.00001,
-                100,
-                (0.2).into()
+                100
             )
         );
         assert!((v[0] - 0.0).abs() < 0.00001);

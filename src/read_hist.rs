@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
-use wasm_bindgen::prelude::*;
 use serde::{ Serialize, Deserialize };
 use serde_json;
 use std::io::prelude::*;
@@ -153,10 +152,4 @@ pub fn print_appl_data() {
     println!("{}", json_string);
 
     write_lines("data/aapl.json", json_string);
-}
-
-#[test]
-fn test() {
-    print_appl_data();
-    assert!(false);
 }

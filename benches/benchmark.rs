@@ -1,30 +1,30 @@
-use crate::{
+use simd_vol::{
     vol32x8,
-    consts
+    consts,
+    read_hist
 };
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("implied volatility f32x8", |b| b.iter(|| {
-        let price = vec![3.15; 25000];
-        let spot = vec![545.0; 25000];
-        let strike = vec![550.0; 25000];
-        let risk_free_rate = vec![0.01; 25000];
-        let dividend_yield = vec![0.0; 25000];
-        let years_to_expiry = vec![0.5; 25000];
-        let prev_implied_vol = vec![0.2; 25000];
+        let (spot, call_prices, call_strikes, _, _, years_to_expiry, _) =
+            read_hist::get_appl_data();
 
-        let _ = implied_vol(
-            option_dir: consts::OptionDir::CALL,
-            price: price,
-            spot: spot,
-            strike: strike,
-            risk_free_rate: risk_free_rate,
-            dividend_yield: dividend_yield,
-            years_to_expiry: years_to_expiry,
-            prev_implied_vol: prev_implied_vol,
-            max_iterations: 20,
-            threshold: 0.001
+        let n = call_prices.len();
+        let spot: Vec<f32> = vec![spot; n];
+        let risk_free_rate: Vec<f32> = vec![0.01; n];
+        let dividend_yield: Vec<f32> = vec![0.0; n];
+
+        let _ = vol32x8::implied_vol(
+            consts::OptionDir::CALL,
+            &call_prices,
+            &spot,
+            &call_strikes,
+            &risk_free_rate,
+            &dividend_yield,
+            &years_to_expiry,
+            20,
+            0.001
         );
     }));
 }

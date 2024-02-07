@@ -18,9 +18,6 @@ use wasm_bindgen::prelude::*;
 
     Threshold represents the largest acceptable difference between the calculated implied volatitilty 
     and actual implied Black volatility.
-
-    prev_implied_vol represents the previous implied volatilities, and if chosen correctly, can limit the iteration
-    to 1 per price/spot/strike combination. Generally, the algorithm converges between 2-3 iterations.
 */
 
 #[wasm_bindgen]
@@ -32,7 +29,6 @@ pub fn implied_vol(
     risk_free_rate: &[f32],
     dividend_yield: &[f32],
     years_to_expiry: &[f32],
-    prev_implied_vol: &[f32],
     max_iterations: i32,
     threshold: f32
 ) -> Vec<f32> {
@@ -44,7 +40,6 @@ pub fn implied_vol(
             strike.len() == risk_free_rate.len() &&
             risk_free_rate.len() == dividend_yield.len() &&
             dividend_yield.len() == years_to_expiry.len() &&
-            years_to_expiry.len() == prev_implied_vol.len() &&
             1 < max_iterations &&
             0.0 < threshold
         )
@@ -66,7 +61,6 @@ pub fn implied_vol(
             let years_to_expiry = f32x8::from(&years_to_expiry[start_idx..end_idx]);
             let risk_free_rate = f32x8::from(&risk_free_rate[start_idx..end_idx]);
             let dividend_yield = f32x8::from(&dividend_yield[start_idx..end_idx]);
-            let prev_implied_vol = f32x8::from(&prev_implied_vol[start_idx..end_idx]);
 
             let res: [f32; 8] = cast(
                 bs32x8::implied_vol_f32x8(
@@ -78,8 +72,7 @@ pub fn implied_vol(
                     dividend_yield,
                     years_to_expiry,
                     threshold,
-                    max_iterations,
-                    prev_implied_vol
+                    max_iterations
                 )
             );
 
@@ -113,7 +106,6 @@ mod tests {
             &[0.02],
             &[0.0],
             &[0.5],
-            &[0.2],
             20,
             0.0001
         );
@@ -131,7 +123,6 @@ mod tests {
             &[0.02, 0.025, 0.03, 0.035, 0.02, 0.025, 0.03, 0.035],
             &[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-            &[0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
             20,
             0.0001
         );
@@ -148,7 +139,6 @@ mod tests {
         let spot: Vec<f32> = vec![spot; n];
         let risk_free_rate: Vec<f32> = vec![0.01; n];
         let dividend_yield: Vec<f32> = vec![0.0; n];
-        let prev_implied_vol: Vec<f32> = vec![0.2; n];
 
         let vol = implied_vol(
             OptionDir::CALL,
@@ -158,7 +148,6 @@ mod tests {
             &risk_free_rate,
             &dividend_yield,
             &years_to_expiry,
-            &prev_implied_vol,
             20,
             0.0001
         );
@@ -175,8 +164,7 @@ mod tests {
             &[120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0],
             &[0.02, 0.025, 0.03, 0.035, 0.02, 0.025, 0.03, 0.035],
             &[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-            &[0.2, 0.2],
+            &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
             20,
             0.0001
         );
