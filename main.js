@@ -61,7 +61,7 @@ document.getElementById("optionSelect").addEventListener("change", handleOptionT
 document.getElementById("interestRate").addEventListener("input", handleInterestRateChange);
 document.getElementById("dividendYield").addEventListener("input", handleDividendYieldChange);
 document.getElementById("plotType").addEventListener("change", handlePlotTypeChange);
-document.getElementById("see2DButton").addEventListener("click", toggle2D);
+// document.getElementById("see2DButton").addEventListener("click", toggle2D);
 
 function toggle2D() {
     shouldPlot2D = !shouldPlot2D;
@@ -70,8 +70,10 @@ function toggle2D() {
 }
 
 function update() {
-    document.getElementById("interestRateText").textContent = `Interest Rate: ${interest_rate * 100}%`;
-    document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${dividend_yield * 100}%`;
+    document.getElementById("interestRateText").textContent = `Interest Rate: ${Math.round(interest_rate * 100)}%`;
+    document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${Math.round(dividend_yield * 100)}%`;
+
+    const start = performance.now();
 
     const n = years_to_expiry.length;
     const interest_rates = Array(n).fill(interest_rate);
@@ -112,6 +114,8 @@ function update() {
     if (shouldPlot2D) {
         plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry, put_impl_vol);
     }
+
+    console.log(`${performance.now() - start.toFixed(2)} ms`);
 }
 
 
