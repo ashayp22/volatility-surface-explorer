@@ -18,7 +18,7 @@ export function roundTo2DecimalPlaces(num) {
     return (Math.round(num * 100)) / 100
 }
 
-export function get3DFromImpliedVolatility(names, strikes, impl_vol, years_to_expiry) {
+export function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
     const x = []
     const y = []
     const z = []

@@ -15,40 +15,43 @@
 <body>
 
   <div id="container">
-    <p class="title">Volatility Surface</p>
+    <p class="title">Volatility Surface Explorer</p>
     <div id="optionsContainer">
       <div class="settingsContainer">
         <p>Option Settings</p>
-        <select name="optionType" id="optionSelect">
+        <select name="optionType" id="optionSelect" class="customSelect">
           <option value="Call">Call</option>
           <option value="Put">Put</option>
+        </select>
+      </div>
+
+      <div class="settingsContainer">
+        <p>Plot Type</p>
+        <select name="plotType" id="plotType" class="customSelect">
+          <option value="mesh3d">Mesh</option>
+          <!-- <option value="surface">Surface</option> -->
+          <option value="markers">Points</option>
+          <option value="lines">Line</option>
         </select>
       </div>
       
 
       <div class="settingsContainer">
         <p id="interestRateText">Interest Rate</p>
-        <input type="range" min="0" max="20" value="1" id="interestRate">
+        <input type="range" min="0" max="100" value="1" id="interestRate">
       </div>
 
       <div class="settingsContainer">
         <p id="dividendYieldText">Dividend Yield</p>
-        <input type="range" min="0" max="20" value="0" id="dividendYield">
+        <input type="range" min="0" max="100" value="0" id="dividendYield">
       </div>
 
     </div>
     <div id ="info3d"></div>
+
+    <!-- <button id="see2DButton">View Implied Volatility vs Strike 2D Plots</button> -->
+    <!-- <div id="info2d"></div> -->
   </div>
-
-
-    <!-- <div id='myDiv0'></div>
-    <div id='myDiv1'></div>
-    <div id='myDiv2'></div>
-    <div id='myDiv3'></div>
-    <div id='myDiv4'></div>
-    <div id='myDiv5'></div>
-    <div id='myDiv6'></div>
-    <div id='myDiv7'></div> -->
 </body>
 
 </html>
