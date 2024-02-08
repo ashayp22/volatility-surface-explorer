@@ -1,3 +1,5 @@
+use crate::consts::OptionDir;
+
 // Black-scholes pricer, used to test the other function
 fn erf(x: f32) -> f32 {
     let t = x.signum();
@@ -70,6 +72,37 @@ pub(crate) fn put_price(
     put
 }
 
+pub(crate) fn price(
+    dir: OptionDir,
+    spot: f32,
+    strike: f32,
+    volatility: f32,
+    risk_free_rate: f32,
+    dividend_yield: f32,
+    years_to_expiry: f32
+) -> f32 {
+    match dir {
+        OptionDir::CALL =>
+            call_price(
+                spot,
+                strike,
+                volatility,
+                risk_free_rate,
+                dividend_yield,
+                years_to_expiry
+            ),
+        OptionDir::PUT =>
+            put_price(
+                spot,
+                strike,
+                volatility,
+                risk_free_rate,
+                dividend_yield,
+                years_to_expiry
+            ),
+    }
+}
+
 pub(crate) fn vega(
     spot: f32,
     strike: f32,
@@ -83,3 +116,45 @@ pub(crate) fn vega(
     (-dividend_yield * years_to_expiry).exp() * nd1 * (spot * years_to_expiry.sqrt())
 }
 
+
+pub fn implied_vol(
+    option_dir: OptionDir,
+    option_price: &[f32],
+    spot: &[f32],
+    strike: &[f32],
+    risk_free_rate: &[f32],
+    dividend_yield: &[f32],
+    years_to_expiry: &[f32],
+    max_iterations: i32,
+    threshold: f32
+) -> Vec<f32> {
+    let n = option_price.len();
+    let mut impl_vol = Vec::new();;
+
+    for i in 0..n {
+        let mut count = 0;
+        let mut low = 0.0;
+        let mut high = 5.0;
+
+        loop {
+            let mid = (low + high) / 2.0;
+            let option_value = price(option_dir, spot[i], strike[i], mid, risk_free_rate[i], dividend_yield[i], years_to_expiry[i]);
+
+            if option_value > option_price[i] {
+                high = mid;
+            } else {
+                low = mid;
+            }
+
+            if count > max_iterations {
+                break;
+            } else {
+                count = count + 1;
+            }
+        }
+
+        impl_vol.push((low + high) / 2.0);
+    }
+
+    impl_vol
+}

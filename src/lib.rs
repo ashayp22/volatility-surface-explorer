@@ -1,4 +1,4 @@
-mod bs;
+pub mod bs;
 mod bs32x8;
 
 pub mod read_hist;

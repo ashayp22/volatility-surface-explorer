@@ -57,7 +57,8 @@ Calculated on a Macbook M1:
 
 For ~25000 options:
 
-- `vol32x8::implied_vol()`: ~1ms
+- `bs::implied_vol()` (single): ~23.2ms
+- `vol32x8::implied_vol()` (SIMD and multithreaded): ~1ms
 
 # Extensions
 
