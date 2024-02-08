@@ -7,7 +7,7 @@
 
 <script src='https://cdn.plot.ly/plotly-2.27.0.min.js'></script>
 <link href='https://fonts.googleapis.com/css?family=Noto Sans' rel='stylesheet'>
-<script type="module" src = "./js/data.ts"></script>    
+<script type="module" src = "./js/data.js"></script>    
 <script type="module" src = "./js/calc.js"></script>    
 <script type="module" src = "./js/plot.js"></script>    
 <script type="module" src = "main.js"></script>    
@@ -15,8 +15,16 @@
 <body>
 
   <div id="container">
-    <p class="title">Volatility Surface Explorer</p>
+    <p class="title">Implied Volatility Surface Explorer</p>
     <div id="optionsContainer">
+      <div class="settingsContainer">
+        <p>Data</p>
+        <select name="dataType" id="dataSelect" class="customSelect">
+          <option value="SPY">SPY</option>
+          <option value="AAPL">AAPL</option>
+        </select>
+      </div>
+
       <div class="settingsContainer">
         <p>Option Settings</p>
         <select name="optionType" id="optionSelect" class="customSelect">
@@ -38,18 +46,18 @@
 
       <div class="settingsContainer">
         <p id="interestRateText">Interest Rate</p>
-        <input type="range" min="0" max="100" value="1" id="interestRate">
+        <input type="range" min="0" max="30" value="1" id="interestRate">
       </div>
 
       <div class="settingsContainer">
         <p id="dividendYieldText">Dividend Yield</p>
-        <input type="range" min="0" max="100" value="0" id="dividendYield">
+        <input type="range" min="0" max="30" value="0" id="dividendYield">
       </div>
 
     </div>
     <div id ="info3d"></div>
 
-    <button id="see2DButton">View Implied Volatility vs Strike 2D Plots</button>
+    <button id="see2DButton">View Implied Vol vs Strike Plots</button>
     <div id="info2d"></div>
   </div>
 </body>

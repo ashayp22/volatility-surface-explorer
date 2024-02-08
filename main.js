@@ -1,6 +1,8 @@
 import init, { OptionDir, implied_vol } from "./pkg/simd_vol.js";
-import { AAPL_DATA } from "./js/data.js";
+import { AAPL_DATA, SPY_DATA } from "./js/data.js";
 import { plot2D, plot3D } from "./js/plot.js";
+
+var dataType = "SPY";
 
 var spot;
 var call_prices;
@@ -8,25 +10,43 @@ var put_prices;
 var call_strikes;
 var put_strikes;
 var years_to_expiry;
-var call_prices;
+var time;
 var interest_rate = 0.01;
 var dividend_yield = 0.0;
 var isCall = true;
-var time;
 var plotType = "mesh3d";
 var shouldPlot2D = false;
+var option_name = ""
 
 init().then(() => {
-    call_prices = AAPL_DATA.call_prices;
-    put_prices = AAPL_DATA.put_prices;
-    call_strikes = AAPL_DATA.call_strikes;
-    put_strikes = AAPL_DATA.put_strikes;
-    years_to_expiry = AAPL_DATA.years_to_expiry;
-    spot = AAPL_DATA.spot;
-    time = AAPL_DATA.time;
-
-    update();
+    setOptionData();
+    update(true);
 });
+
+function setOptionData() {
+    let selectedData = SPY_DATA;
+
+    if (dataType === "AAPL") {
+        selectedData = AAPL_DATA;
+    }
+
+    spot = selectedData.spot;
+    call_prices = selectedData.call_prices;
+    put_prices = selectedData.put_prices;
+    call_strikes = selectedData.call_strikes;
+    put_strikes = selectedData.put_strikes;
+    years_to_expiry = selectedData.years_to_expiry;
+    time = selectedData.time;
+    option_name = selectedData.option_name;
+}
+
+function handleDataTypeChange() {
+    var selectedValue = document.getElementById("dataSelect").value;
+    dataType = selectedValue;
+
+    setOptionData();
+    update(true);
+}
 
 function handleOptionTypeChange() {
     var selectedValue = document.getElementById("optionSelect").value;
@@ -52,6 +72,7 @@ function handleDividendYieldChange() {
     update(true);
 }
 
+document.getElementById("dataSelect").addEventListener("change", handleDataTypeChange);
 document.getElementById("optionSelect").addEventListener("change", handleOptionTypeChange);
 document.getElementById("interestRate").addEventListener("input", handleInterestRateChange);
 document.getElementById("dividendYield").addEventListener("input", handleDividendYieldChange);
@@ -60,7 +81,7 @@ document.getElementById("see2DButton").addEventListener("click", toggle2D);
 
 function toggle2D() {
     shouldPlot2D = !shouldPlot2D;
-    document.getElementById("see2DButton").textContent = shouldPlot2D ? "Hide 2D Plots" : "Show 2D Plots";
+    document.getElementById("see2DButton").textContent = shouldPlot2D ? "Hide Plots" : "View Implied Vol vs Strike Plots";
 
     if (!shouldPlot2D) {
         document.getElementById("info2d").textContent = '';
@@ -105,13 +126,11 @@ function update(shouldUpdate2D = false) {
         0.0001
     );
 
-    plot3D(isCall ? call_impl_vol : put_impl_vol, spot, strikes, years_to_expiry, time, plotType);
+    plot3D(option_name, isCall ? call_impl_vol : put_impl_vol, spot, strikes, years_to_expiry, time, plotType);
 
     if (shouldPlot2D && shouldUpdate2D) {
         plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry, put_impl_vol);
     }
-
-    console.log(`Performance: ${performance.now() - start.toFixed(2)} ms`);
 }
 
 

@@ -1,8 +1,7 @@
 import { get3DFromImpliedVolatility, get2DFromImpliedVolatility } from "./calc.js";
 
 export function plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry, put_impl_vol) {
-    const times = [0.030136986, 0.115068495, 0.18630137, 0.27671233, 0.35890412, 0.61095893, 1.1150684, 2.1150684]
-    const titles = ["Expiry: Dec 2013", "Expiry: Jan 2014", "Expiry: Feb 2014", "Expiry: Mar 2014", "Expiry: Apr 2014", "Expiry: Jul 2014", "Expiry: Jan 2015", "Expiry: Jan 2016"]
+    const times = Array.from(new Set(years_to_expiry));
 
     for (let i = 0; i < times.length; i++) {
         const divId = `info-2d-${i}`;
@@ -29,8 +28,10 @@ export function plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry
             type: 'scatter',
         };
 
+        let days = Math.round(times[i] * 365)
+
         var layout = {
-            title: titles[i],
+            title: `${days} ${days === 1 ? "Day" : "Days"}`,
             scene: {
                 xaxis: { title: 'Strike Price' },
                 yaxis: { title: 'Implied Volatility' }
@@ -42,7 +43,7 @@ export function plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry
     }
 }
 
-export function plot3D(impl_vol, spot, strikes, years_to_expiry, time, plotType = "mesh3d") {
+export function plot3D(optionName, impl_vol, spot, strikes, years_to_expiry, time, plotType = "mesh3d") {
     const { x, y, z } = get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry);
 
     let data = null;
@@ -122,7 +123,7 @@ export function plot3D(impl_vol, spot, strikes, years_to_expiry, time, plotType 
     }
 
     var layout = {
-        title: `APPL | Current Price: ${spot} | ${time}`,
+        title: `${optionName} | Current Price: ${spot} | ${time}`,
         scene: {
             camera: { eye: { x: -1.5, y: -1.5, z: 1 } },
             xaxis: { title: 'Strike Price' },

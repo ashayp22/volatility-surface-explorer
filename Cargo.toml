@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 # Comment out if you want benchmark to run/simd_vol importable into other files
-[lib]
-crate-type = ["cdylib"]
+# [lib]
+# crate-type = ["cdylib"]
 
 [dependencies]
 wide = "0.7.13"
