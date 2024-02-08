@@ -69,3 +69,16 @@ a {
   height: 25px;
   border-radius: 4px;
 }
+
+#see2DButton {
+  border-radius: 10px;
+  background-color: #3759b4;
+  padding: 10px;
+  color: white;
+  border-color: #3759b4;
+}
+
+#see2DButton:hover {
+  background-color: #1a357d;
+  border-color: #1a357d;
+}
