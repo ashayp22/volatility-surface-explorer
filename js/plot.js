@@ -32,10 +32,12 @@ export function plot2D(call_strikes, call_impl_vol, put_strikes, years_to_expiry
 
         var layout = {
             title: `${days} ${days === 1 ? "Day" : "Days"}`,
-            scene: {
-                xaxis: { title: 'Strike Price' },
-                yaxis: { title: 'Implied Volatility' }
-            },
+            xaxis: { title: 'Strike Price' },
+            yaxis: { title: 'Implied Volatility' },
+            autosize: false,
+            font: {
+                family: 'Noto Sans',
+            }
         };
 
         const data = [call, put];
