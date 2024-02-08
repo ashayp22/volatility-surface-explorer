@@ -82,3 +82,4 @@ pub(crate) fn vega(
     let nd1 = pdf(d1, 0.0, 1.0);
     (-dividend_yield * years_to_expiry).exp() * nd1 * (spot * years_to_expiry.sqrt())
 }
+

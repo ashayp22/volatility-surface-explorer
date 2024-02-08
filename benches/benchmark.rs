@@ -6,15 +6,15 @@ use simd_vol::{
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn criterion_benchmark(c: &mut Criterion) {
+    let (spot, call_prices, call_strikes, _, _, years_to_expiry, _) =
+    read_hist::get_appl_data();
+
+    let n = call_prices.len();
+    let spot: Vec<f32> = vec![spot; n];
+    let risk_free_rate: Vec<f32> = vec![0.01; n];
+    let dividend_yield: Vec<f32> = vec![0.0; n];
+
     c.bench_function("implied volatility f32x8", |b| b.iter(|| {
-        let (spot, call_prices, call_strikes, _, _, years_to_expiry, _) =
-            read_hist::get_appl_data();
-
-        let n = call_prices.len();
-        let spot: Vec<f32> = vec![spot; n];
-        let risk_free_rate: Vec<f32> = vec![0.01; n];
-        let dividend_yield: Vec<f32> = vec![0.0; n];
-
         let _ = vol32x8::implied_vol(
             consts::OptionDir::CALL,
             &call_prices,

@@ -55,32 +55,9 @@ cargo test
 
 Calculated on a Macbook M1:
 
-For 112 spots, 80 trials and 100 steps (~11x improvement in speed):
+For ~25000 options:
 
-- `mc::call_price()`: ~33.649ms
-- `mc_simd::call_price()`: ~3.29ms
-
-For 112 spots, 1000 trials and 100 steps (~27x improvement in speed):
-
-- `mc::call_price()`: ~419ms
-- `mc_simd::call_price()`: ~15ms
-
-For 112 spots, 10000 trials and 100 steps (~40x improvement in speed):
-
-- `mc::call_price()`: ~4.26s
-- `mc_simd::call_price()`: ~104ms
-
-For 112 spots, 2000 trials and 1000 steps (~40x improvement in speed):
-
-- `mc::call_price()`: ~8.22s
-- `mc_simd::call_price()`: ~205ms
-
-For 112 spots, 20000 trials and 100 steps (~40x improvement in speed):
-
-- `mc::call_price()`: ~8.27s
-- `mc_simd::call_price()`: ~207ms
-
-Notice that `mc_simd` performance increases compared to `mc` as the number of trials and steps get larger.
+- `vol32x8::implied_vol()`: ~1ms
 
 # Extensions
 
