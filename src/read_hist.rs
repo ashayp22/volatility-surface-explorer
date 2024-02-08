@@ -5,6 +5,9 @@ use serde::{ Serialize, Deserialize };
 use serde_json;
 use std::io::prelude::*;
 
+// This file contains helper functions that extracts data from two sample .dat files containing
+// option data from AAPL (2013) and SPY (2024)
+
 #[derive(Serialize, Deserialize)]
 struct HistoricalData {
     call_prices: Vec<f32>,

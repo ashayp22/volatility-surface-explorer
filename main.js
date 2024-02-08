@@ -1,6 +1,7 @@
 import init, { OptionDir, implied_vol } from "./pkg/simd_vol.js";
 import { AAPL_DATA, SPY_DATA } from "./js/data.js";
 import { plot2D, plot3D } from "./js/plot.js";
+import { parseOptionData } from "./js/parse.js";
 
 var dataType = "SPY";
 
@@ -18,6 +19,7 @@ var plotType = "mesh3d";
 var shouldPlot2D = false;
 var option_name = ""
 
+// Initialize WASM and set the initial graph
 init().then(() => {
     setOptionData();
     update(true);
@@ -72,12 +74,33 @@ function handleDividendYieldChange() {
     update(true);
 }
 
+function handleOptionFileChange() {
+    let fr = new FileReader();
+    fr.onload = function () {
+        const data = parseOptionData(fr.result);
+
+        spot = data.spot;
+        call_prices = data.call_prices;
+        put_prices = data.put_prices;
+        call_strikes = data.call_strikes;
+        put_strikes = data.put_strikes;
+        years_to_expiry = data.years_to_expiry;
+        time = data.time;
+        option_name = data.option_name;
+        update(true);
+    }
+
+    fr.readAsText(this.files[0]);
+}
+
+// Responds to user changing volatility surface inputs
 document.getElementById("dataSelect").addEventListener("change", handleDataTypeChange);
 document.getElementById("optionSelect").addEventListener("change", handleOptionTypeChange);
 document.getElementById("interestRate").addEventListener("input", handleInterestRateChange);
 document.getElementById("dividendYield").addEventListener("input", handleDividendYieldChange);
 document.getElementById("plotType").addEventListener("change", handlePlotTypeChange);
 document.getElementById("see2DButton").addEventListener("click", toggle2D);
+document.getElementById('inputfile').addEventListener('change', handleOptionFileChange);
 
 function toggle2D() {
     shouldPlot2D = !shouldPlot2D;
@@ -93,8 +116,6 @@ function toggle2D() {
 function update(shouldUpdate2D = false) {
     document.getElementById("interestRateText").textContent = `Interest Rate: ${Math.round(interest_rate * 100)}%`;
     document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${Math.round(dividend_yield * 100)}%`;
-
-    const start = performance.now();
 
     const n = years_to_expiry.length;
     const interest_rates = Array(n).fill(interest_rate);

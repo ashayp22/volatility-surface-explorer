@@ -1,9 +1,12 @@
+// Extracts x and y coordinates from the strikes and implied volatility
+// based on a specific years_to_expiry
 export function get2DFromImpliedVolatility(strikes, impl_vol, years_to_expiry, time) {
     const x = [];
     const y = [];
 
     // Normalize all values
     for (let i = 0; i < strikes.length; i++) {
+        // Skip options with 0 implied volatility
         if (years_to_expiry[i] != time || impl_vol[i] < 0.001) {
             continue;
         }
@@ -14,10 +17,12 @@ export function get2DFromImpliedVolatility(strikes, impl_vol, years_to_expiry, t
     return { x, y };
 }
 
-export function roundTo2DecimalPlaces(num) {
-    return (Math.round(num * 100)) / 100
+export function roundToDecimalPlaces(num, places = 2) {
+    const divis = Math.pow(10, places);
+    return (Math.round(num * divis)) / divis
 }
 
+// Extracts 3D points from strikes, implied volatility, and years to expiry
 export function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
     const x = []
     const y = []
@@ -27,13 +32,14 @@ export function get3DFromImpliedVolatility(strikes, impl_vol, years_to_expiry) {
 
     // Normalize all values
     for (let i = 0; i < strikes.length; i++) {
+        // Skip options with 0 implied volatility
         if (impl_vol[i] < 0.0001) {
             continue;
         }
 
-        const roundedX = roundTo2DecimalPlaces(strikes[i]);
-        const roundedY = roundTo2DecimalPlaces(years_to_expiry[i] * 365);
-        const roundedZ = roundTo2DecimalPlaces(impl_vol[i]);
+        const roundedX = roundToDecimalPlaces(strikes[i]);
+        const roundedY = roundToDecimalPlaces(years_to_expiry[i] * 365);
+        const roundedZ = roundToDecimalPlaces(impl_vol[i]);
 
         if (`${roundedX}, ${roundedY}` in seen) {
             // Skip strikes and years to expiry that we've already seen

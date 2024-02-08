@@ -9,6 +9,7 @@
 <link href='https://fonts.googleapis.com/css?family=Noto Sans' rel='stylesheet'>
 <script type="module" src = "./js/data.js"></script>    
 <script type="module" src = "./js/calc.js"></script>    
+<script type="module" src = "./js/parse.js"></script>    
 <script type="module" src = "./js/plot.js"></script>    
 <script type="module" src = "main.js"></script>    
 
@@ -16,15 +17,26 @@
 
   <div id="container">
     <p class="title">Implied Volatility Surface Explorer</p>
-    <div id="optionsContainer">
-      <div class="settingsContainer">
-        <p>Data</p>
+    <div class="optionsContainer">
+      <div class="settingsContainer equalSizeContainer">
+        <p>Sample Data</p>
         <select name="dataType" id="dataSelect" class="customSelect">
-          <option value="SPY">SPY</option>
-          <option value="AAPL">AAPL</option>
+          <option value="SPY">SPY Feb 2024</option>
+          <option value="AAPL">AAPL Dec 2013</option>
         </select>
       </div>
 
+      <div class="settingsContainer equalSizeContainer">
+        <p class="orText">OR</p>
+      </div>
+
+      <div class="settingsContainer equalSizeContainer">
+        <p>Upload an options chain (CSV) from the <a href="https://www.cboe.com/delayed_quotes/spy/quote_table" target="_blank">CBOE's delayed quotes</a></p>
+        <input type="file" name="inputfile" id="inputfile">
+      </div>
+    </div>
+    <hr>
+    <div class="optionsContainer">
       <div class="settingsContainer">
         <p>Option Settings</p>
         <select name="optionType" id="optionSelect" class="customSelect">

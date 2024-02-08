@@ -25,7 +25,7 @@ select {
   border-radius: 25px;
 }
 
-#optionsContainer {
+.optionsContainer {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -46,6 +46,7 @@ select {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  max-width: 300px;
 }
 
 canvas {
@@ -59,26 +60,45 @@ canvas {
   margin-left: 10px;
 }
 
-a {
-  color: yellow;
-  text-decoration: none;
-}
-
 .customSelect {
-  width: 100px;
+  width: 150px;
   height: 25px;
   border-radius: 4px;
 }
 
 #see2DButton {
   border-radius: 10px;
-  background-color: #3759b4;
+  background-color: #3273f6;
   padding: 10px;
   color: white;
-  border-color: #3759b4;
+  border-color: #3273f6;
 }
 
 #see2DButton:hover {
-  background-color: #1a357d;
-  border-color: #1a357d;
+  background-color: #3759b4;
+  border-color: #3759b4;
+}
+
+.orText {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.equalSizeContainer {
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+input {
+  font-family: "Noto Sans";
+}
+
+input::file-selector-button
+{
+  width: 100px;
+  height: 25px;
+  border-radius: 4px;
+  background: white;
+  font-family: "Noto Sans";
+  border: 1px solid black;
 }
