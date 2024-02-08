@@ -1,0 +1,14 @@
+{
+  "name": "simd_vol",
+  "version": "0.1.0",
+  "files": [
+    "simd_vol_bg.wasm",
+    "simd_vol.js",
+    "simd_vol.d.ts"
+  ],
+  "module": "simd_vol.js",
+  "types": "simd_vol.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
