@@ -11,6 +11,7 @@
 <script type="module" src = "./js/calc.js"></script>    
 <script type="module" src = "./js/parse.js"></script>    
 <script type="module" src = "./js/plot.js"></script>    
+<script type="module" src = "./js/modal.js"></script>    
 <script type="module" src = "main.js"></script>    
 
 <body>
@@ -31,7 +32,10 @@
       </div>
 
       <div class="settingsContainer equalSizeContainer">
-        <p>Upload an options chain (CSV) from the <a href="https://www.cboe.com/delayed_quotes/spy/quote_table" target="_blank">CBOE's delayed quotes</a></p>
+        <div class="uploadOptionsContainer">
+          <p>Upload an options chain (CSV) from the <a href="https://www.cboe.com/delayed_quotes/spy/quote_table" target="_blank">CBOE's delayed quotes</a></p>
+          <button id="howToButton" class="primaryButton">?</button>
+        </div>
         <input type="file" name="inputfile" id="inputfile">
       </div>
     </div>
@@ -69,9 +73,24 @@
     </div>
     <div id ="info3d"></div>
 
-    <button id="see2DButton">View Implied Vol vs Strike Plots</button>
+    <button id="see2DButton" class="primaryButton">View Implied Vol vs Strike Plots</button>
     <div id="info2d"></div>
   </div>
+
+  <div id="howToModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p class="orText">How to upload an options chain</p>
+      <p>1. Visit the  <a href="https://www.cboe.com/delayed_quotes/spy/quote_table" target="_blank">CBOE's SPY Quotes Dashboard</a>, which displays delayed SPY option chains.</p>
+      <img src="demo/step1.png" alt="CBOE website" width="500">
+      <p>2. Update the Volume, Expiration Type, Options Range, Size, and Expiration filters as desired. If you select "All", you'll add more options to the chain.</p>
+      <p>3. Scroll to the bottom of the page and click Download CSV. This will download all of the option chain data.</p>
+      <img src="demo/step2.png" alt="CBOE website" width="500">
+      <p>4. Upload the CSV file containing the option chain data to this website.</p>
+      <img src="demo/step3.png" alt="CBOE website" width="300">
+    </div>
+  </div>
+
 </body>
 
 </html>

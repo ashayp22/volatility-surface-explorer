@@ -66,7 +66,7 @@ canvas {
   border-radius: 4px;
 }
 
-#see2DButton {
+.primaryButton {
   border-radius: 10px;
   background-color: #3273f6;
   padding: 10px;
@@ -74,7 +74,7 @@ canvas {
   border-color: #3273f6;
 }
 
-#see2DButton:hover {
+.primaryButton:hover {
   background-color: #3759b4;
   border-color: #3759b4;
 }
@@ -97,8 +97,66 @@ input::file-selector-button
 {
   width: 100px;
   height: 25px;
-  border-radius: 4px;
-  background: white;
+  border-color: #3759b4 !important;
+  border-radius: 10px;
+  background: #3273f6;
+  color: white;
   font-family: "Noto Sans";
   border: 1px solid black;
+}
+
+input::file-selector-button:hover {
+  background-color: #3759b4;
+  border-color: #3759b4 !important;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.uploadOptionsContainer {
+  display: flex;
+  align-items: baseline;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#howToButton {
+  padding: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
