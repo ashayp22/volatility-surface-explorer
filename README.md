@@ -1,8 +1,8 @@
-# Implied Volatility Surface Explorer with SIMD and multithreading
+# Implied Volatility Surface Explorer
 
 ![Implied Volatility Surface Explorer website](demo/home.png)
 
-A fast, practical Implied Volatility Surface Explorer for SPY and similar options from the [CBOE quotes dashboard](https://www.cboe.com/delayed_quotes/spy/quote_table). Implied Volatility is calculated using the [Bisection method](https://en.wikipedia.org/wiki/Bisection_method) and optimized with [SIMD](https://docs.rs/wide/latest/wide/) and [Rayon](https://github.com/rayon-rs/rayon) and ported to the web with [WASM](https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_Wasm). Surfaces are plotted using [Plotly](https://plotly.com/javascript/).
+An interactive, fast, and practical Implied Volatility Surface Explorer for SPY and similar options from the [CBOE quotes dashboard](https://www.cboe.com/delayed_quotes/spy/quote_table). Implied Volatility is calculated using the [Bisection method](https://en.wikipedia.org/wiki/Bisection_method) and optimized with [SIMD](https://docs.rs/wide/latest/wide/) and [Rayon](https://github.com/rayon-rs/rayon) and ported to the web with [WASM](https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_Wasm). Surfaces are plotted using [Plotly](https://plotly.com/javascript/).
 
 # Usage
 
