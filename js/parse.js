@@ -100,9 +100,30 @@ export function parseOptionData(data) {
             let year_line = split_line[1].split(" ");
             current_year = parseInt(year_line[1], 10);
 
+            const hour_minutes = year_line[3].split(":")
+            const hour = parseInt(hour_minutes[0], 10);
+            const minutes = parseInt(hour_minutes[1], 10);
+            const am_pm = year_line[4];
+
+            // Assume time is in EST
+            let date = new Date();
+            date.setHours(hour + (am_pm.toLowerCase() === "am" ? 0 : 12));
+            date.setMinutes(minutes);
+
+            let optionExpireDate = new Date();
+            optionExpireDate.setHours(16);
+            optionExpireDate.setMinutes(15);
+
+            let difference = (optionExpireDate.getTime() - date.getTime()) / 86400000;
             let current_day = parseInt(removeNonNumCharacters(date_line[2]));
 
-            today = getDaysFromJanuary(month) + current_day;
+            if (difference < 0) {
+                // Assume 1 day difference if we're past the end of day for the option
+                difference = 1;
+            }
+
+            // Subtract to account for the hour difference since options expire at 4:15 PM
+            today = getDaysFromJanuary(month) + current_day - difference;
         } else if (line_counter >= 4) {
             let split_line = line.split(",");
 
@@ -130,8 +151,9 @@ export function parseOptionData(data) {
             let days = parseFloat(date_price[2]);
             let month_days = getDaysFromJanuary(date_price[1]);
 
+
             // Add one for end of day
-            let expiration = ((year - current_year)) * 365.0 + month_days + days + 1.0;
+            let expiration = ((year - current_year)) * 365.0 + month_days + days;
 
             years_to_expiry.push((expiration - today) / 365.0);
 
