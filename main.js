@@ -2,6 +2,7 @@ import init, { OptionDir, implied_vol } from "./pkg/simd_vol.js";
 import { AAPL_DATA, SPY_DATA } from "./js/data.js";
 import { plot2D, plot3D } from "./js/plot.js";
 import { parseOptionData } from "./js/parse.js";
+import { roundToDecimalPlaces } from "./js/calc.js";
 
 var dataType = "SPY";
 
@@ -64,13 +65,13 @@ function handlePlotTypeChange() {
 
 function handleInterestRateChange() {
     var selectedValue = document.getElementById("interestRate").value;
-    interest_rate = parseInt(selectedValue, 10) / 100.0;
+    interest_rate = parseInt(selectedValue, 10) / 1000.0;
     update(true);
 }
 
 function handleDividendYieldChange() {
     var selectedValue = document.getElementById("dividendYield").value;
-    dividend_yield = parseInt(selectedValue, 10) / 100.0;
+    dividend_yield = parseInt(selectedValue, 10) / 1000.0;
     update(true);
 }
 
@@ -114,8 +115,8 @@ function toggle2D() {
 }
 
 function update(shouldUpdate2D = false) {
-    document.getElementById("interestRateText").textContent = `Interest Rate: ${Math.round(interest_rate * 100)}%`;
-    document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${Math.round(dividend_yield * 100)}%`;
+    document.getElementById("interestRateText").textContent = `Interest Rate: ${roundToDecimalPlaces(interest_rate * 100)}%`;
+    document.getElementById("dividendYieldText").textContent = `Dividend Yield: ${roundToDecimalPlaces(dividend_yield * 100)}%`;
 
     const n = years_to_expiry.length;
     const interest_rates = Array(n).fill(interest_rate);
