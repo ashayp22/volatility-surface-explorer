@@ -78,17 +78,21 @@ function handleDividendYieldChange() {
 function handleOptionFileChange() {
     let fr = new FileReader();
     fr.onload = function () {
-        const data = parseOptionData(fr.result);
 
-        spot = data.spot;
-        call_prices = data.call_prices;
-        put_prices = data.put_prices;
-        call_strikes = data.call_strikes;
-        put_strikes = data.put_strikes;
-        years_to_expiry = data.years_to_expiry;
-        time = data.time;
-        option_name = data.option_name;
-        update(true);
+        try {
+            const data = parseOptionData(fr.result);
+            spot = data.spot;
+            call_prices = data.call_prices;
+            put_prices = data.put_prices;
+            call_strikes = data.call_strikes;
+            put_strikes = data.put_strikes;
+            years_to_expiry = data.years_to_expiry;
+            time = data.time;
+            option_name = data.option_name;
+            update(true);
+        } catch {
+            alert("Error parsing option data. Please upload a CSV file from the CBOE Quotes Dashboard.")
+        }
     }
 
     fr.readAsText(this.files[0]);
