@@ -74,8 +74,12 @@ export function parseOptionData(data) {
     let line_counter = 0;
 
     // Start at 1 since the first row is empty
-    for (let i = 1; i < split_data.length; i++) {
-        const line = split_data[i];
+    for (let i = 0; i < split_data.length; i++) {
+        let line = split_data[i];
+
+        if (line == "") {
+            continue;
+        }
 
         line_counter += 1;
 
@@ -85,22 +89,28 @@ export function parseOptionData(data) {
         } else if (line_counter == 2) {
             // This line should look like:
             // "Date: February 8, 2024 at 11:23 AM EST",Bid: 497.7,Ask: 497.71,Size: 17*14,"Volume: 10,598,673"
+            // or 
+            // "Date: February 8, 2024, 11:23 AM EST",Bid: 497.7,Ask: 497.71,Size: 17*14,"Volume: 10,598,673"
+
+            line = line.replace(" at", ",");
             let split_line = line.split(",");
 
-            let bid = parseFloat(removeNonNumCharacters(split_line[2]));
-            let ask = parseFloat(removeNonNumCharacters(split_line[3]));
+            let bid = parseFloat(removeNonNumCharacters(split_line[3]));
+            let ask = parseFloat(removeNonNumCharacters(split_line[4]));
 
             spot = roundToDecimalPlaces((bid + ask) / 2.0, 6);
 
-            time = split_line[0] + split_line[1];
+            time = (split_line[0] + split_line[1] + split_line[2]).replaceAll('"', "");
 
             let date_line = split_line[0].split(" ");
             let month = date_line[1];
 
-            let year_line = split_line[1].split(" ");
-            current_year = parseInt(year_line[1], 10);
+            let year_line = split_line[1];
+            current_year = parseInt(year_line, 10);
 
-            const hour_minutes = year_line[3].split(":")
+            let hour_minutes_line = split_line[2].split(" ");
+
+            const hour_minutes = hour_minutes_line[1].split(":")
             const hour = parseInt(hour_minutes[0], 10);
             const minutes = parseInt(hour_minutes[1], 10);
             const am_pm = year_line[4];
