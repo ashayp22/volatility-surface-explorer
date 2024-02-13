@@ -49,7 +49,11 @@ pub fn implied_vol(
 
     let num_options = spot.len();
 
-    let implied_vol = (0..num_options / 8 + 1)
+    if num_options == 0 {
+        return Vec::new();
+    }
+
+    let implied_vol = (0..(num_options - 1) / 8 + 1)
         .into_par_iter()
         .map(|idx| {
             let start_idx = idx * 8;
@@ -76,7 +80,7 @@ pub fn implied_vol(
                 )
             );
 
-            res[0..end_idx-start_idx].to_vec()
+            res[0..end_idx - start_idx].to_vec()
         })
         .reduce(
             || Vec::new(),
@@ -90,11 +94,93 @@ pub fn implied_vol(
     implied_vol
 }
 
+/* 
+    Utilizes put call parity to calculate the average interest rate across a chain of options
+    that are priced. Utilized for more accurate implied volatility calculations. 
+*/
+#[wasm_bindgen]
+pub fn interest_rate(
+    call_price: &[f32],
+    put_price: &[f32],
+    spot: &[f32],
+    strike: &[f32],
+    years_to_expiry: &[f32]
+) -> f32 {
+    if
+        !(
+            call_price.len() == put_price.len() &&
+            put_price.len() == spot.len() &&
+            spot.len() == strike.len() &&
+            strike.len() == years_to_expiry.len()
+        )
+    {
+        return 0.0;
+    }
+
+    let num_options = spot.len();
+
+    if num_options == 0 {
+        return 0.0;
+    }
+
+    let rate = (0..(num_options - 1) / 8 + 1)
+        .into_par_iter()
+        .map(|idx| {
+            let start_idx = idx * 8;
+            let end_idx = std::cmp::min(num_options, start_idx + 8);
+
+            let call_price = f32x8::from(&call_price[start_idx..end_idx]);
+            let put_price = f32x8::from(&put_price[start_idx..end_idx]);
+            let spot = f32x8::from(&spot[start_idx..end_idx]);
+            let strike = f32x8::from(&strike[start_idx..end_idx]);
+            let years_to_expiry = f32x8::from(&years_to_expiry[start_idx..end_idx]);
+
+            let res: f32x8 = bs32x8::interest_rate_f32x8(
+                call_price,
+                put_price,
+                spot,
+                strike,
+                years_to_expiry
+            );
+
+            res.reduce_add()
+        })
+        .reduce(
+            || 0.0,
+            |mut acc: f32, x: f32| {
+                // Parallel reduction, in this case, appending results to the accumulator
+                acc + x
+            }
+        );
+
+    rate / (num_options as f32)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::bs;
     use bytemuck::cast;
+
+    #[test]
+    fn interest_rate_check() {
+        let rate = interest_rate(
+            &[8.247, 8.247, 8.247, 8.247, 8.247, 8.247, 8.247, 8.247],
+            &[5.785, 5.785, 5.785, 5.785, 5.785, 5.785, 5.785, 5.785],
+            &[100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+            &[100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+            &[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+        );
+
+        let expected_rate = 0.0498;
+
+        assert!(
+            (rate - expected_rate).abs() < 0.0001,
+            "Got: {}, Expected: {}",
+            rate,
+            expected_rate
+        );
+    }
 
     #[test]
     fn implied_vol_check_small() {

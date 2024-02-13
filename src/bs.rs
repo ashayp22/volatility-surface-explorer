@@ -129,7 +129,7 @@ pub fn implied_vol(
     threshold: f32
 ) -> Vec<f32> {
     let n = option_price.len();
-    let mut impl_vol = Vec::new();;
+    let mut impl_vol = Vec::new();
 
     for i in 0..n {
         let mut count = 0;

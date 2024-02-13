@@ -144,7 +144,7 @@ pub(crate) fn implied_vol_f32x8(
     dividend_yield: f32x8,
     years_to_expiry: f32x8,
     diff_threshold: f32,
-    max_iterations: i32,
+    max_iterations: i32
 ) -> f32x8 {
     let mut count = 0;
 
@@ -175,7 +175,10 @@ pub(crate) fn implied_vol_f32x8(
 
         // 0 if diff is positive, 1 if diff is negative
         // 0 means we need to update high, 1 means we need to update low
-        let is_positive_diff = (option_value - price).cmp_lt(f32x8::splat(0.0)).is_nan().min(f32x8::splat(1.0));
+        let is_positive_diff = (option_value - price)
+            .cmp_lt(f32x8::splat(0.0))
+            .is_nan()
+            .min(f32x8::splat(1.0));
         let is_negative_diff = one_f32x8 - is_positive_diff;
 
         low = is_positive_diff * middle + is_negative_diff * low;
@@ -191,11 +194,88 @@ pub(crate) fn implied_vol_f32x8(
     (high + low) / two_f32x8
 }
 
+// Apply put call parity to determine interest rate
+pub(crate) fn interest_rate_f32x8(
+    call_price: f32x8,
+    put_price: f32x8,
+    spot: f32x8,
+    strike: f32x8,
+    years_to_expiry: f32x8
+) -> f32x8 {
+    return (strike / (spot - call_price + put_price)).ln() / years_to_expiry;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::bs;
     use bytemuck::cast;
+
+    #[test]
+    fn interest_rate_check_small() {
+        let interest_rate: [f32; 8] = cast(
+            interest_rate_f32x8(
+                (8.247).into(),
+                (5.785).into(),
+                (100.0).into(),
+                (100.0).into(),
+                (0.5).into()
+            )
+        );
+
+        let expected_rate = 0.04985638;
+
+        assert!(
+            (interest_rate[0] - expected_rate).abs() < 0.01,
+            "Got: {}, Expected: {}",
+            interest_rate[0],
+            expected_rate
+        );
+    }
+
+    #[test]
+    fn interest_rate_check() {
+        for i in (50..90).step_by(1) {
+            let spot = 50.0;
+            let strike = i as f32;
+            let years_to_expiry = 1.0;
+            let risk_free_rate = 0.02;
+            let volatility = 0.2;
+            let dividend_yield = 0.0;
+
+            let put_price = price_f32x8(
+                OptionDir::PUT,
+                spot.into(),
+                strike.into(),
+                volatility.into(),
+                risk_free_rate.into(),
+                dividend_yield.into(),
+                years_to_expiry.into()
+            );
+
+            let call_price = price_f32x8(
+                OptionDir::CALL,
+                spot.into(),
+                strike.into(),
+                volatility.into(),
+                risk_free_rate.into(),
+                dividend_yield.into(),
+                years_to_expiry.into()
+            );
+
+            let interest_rate: [f32; 8] = cast(
+                interest_rate_f32x8(
+                    call_price,
+                    put_price,
+                    spot.into(),
+                    strike.into(),
+                    years_to_expiry.into()
+                )
+            );
+
+            assert!((interest_rate[0] - risk_free_rate).abs() < 0.0001);
+        }
+    }
 
     #[test]
     fn put_price_check() {
