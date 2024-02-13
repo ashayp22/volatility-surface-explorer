@@ -5,6 +5,7 @@ use crate::read_hist;
 use bytemuck::cast;
 use rayon::prelude::*;
 use wasm_bindgen::prelude::*;
+use crate::bs;
 
 /* 
     Source: https://github.com/ronniec95/black_scholes
@@ -99,7 +100,7 @@ pub fn implied_vol(
     that are priced. Utilized for more accurate implied volatility calculations. 
 */
 #[wasm_bindgen]
-pub fn interest_rate(
+pub fn parity_interest_rate(
     call_price: &[f32],
     put_price: &[f32],
     spot: &[f32],
@@ -129,21 +130,41 @@ pub fn interest_rate(
             let start_idx = idx * 8;
             let end_idx = std::cmp::min(num_options, start_idx + 8);
 
-            let call_price = f32x8::from(&call_price[start_idx..end_idx]);
-            let put_price = f32x8::from(&put_price[start_idx..end_idx]);
-            let spot = f32x8::from(&spot[start_idx..end_idx]);
-            let strike = f32x8::from(&strike[start_idx..end_idx]);
-            let years_to_expiry = f32x8::from(&years_to_expiry[start_idx..end_idx]);
+            if end_idx - start_idx < 8 {
+                // Less than 8 elements left, so we calculate iteratively.
+                // This is because if we call parity_interest_rate_f32x8 with less than 8 elements,
+                // some of the elements will be set to NaN due to zero division.
+                let mut sum = 0.0;
 
-            let res: f32x8 = bs32x8::interest_rate_f32x8(
-                call_price,
-                put_price,
-                spot,
-                strike,
-                years_to_expiry
-            );
+                for counter in 0..end_idx - start_idx {
+                    sum += bs::parity_interest_rate(
+                        call_price[start_idx + counter],
+                        put_price[start_idx + counter],
+                        spot[start_idx + counter],
+                        strike[start_idx + counter],
+                        years_to_expiry[start_idx + counter]
+                    );
+                }
 
-            res.reduce_add()
+                sum
+            } else {
+                // Utilize SIMD
+                let call_price = f32x8::from(&call_price[start_idx..end_idx]);
+                let put_price = f32x8::from(&put_price[start_idx..end_idx]);
+                let spot = f32x8::from(&spot[start_idx..end_idx]);
+                let strike = f32x8::from(&strike[start_idx..end_idx]);
+                let years_to_expiry = f32x8::from(&years_to_expiry[start_idx..end_idx]);
+
+                let res: f32x8 = bs32x8::parity_interest_rate_f32x8(
+                    call_price,
+                    put_price,
+                    spot,
+                    strike,
+                    years_to_expiry
+                );
+
+                res.reduce_add()
+            }
         })
         .reduce(
             || 0.0,
@@ -163,8 +184,28 @@ mod tests {
     use bytemuck::cast;
 
     #[test]
-    fn interest_rate_check() {
-        let rate = interest_rate(
+    fn interest_rate_check_small() {
+        let rate = parity_interest_rate(
+            &[8.247, 8.247],
+            &[5.785, 5.785],
+            &[100.0, 100.0],
+            &[100.0, 100.0],
+            &[0.5, 0.5]
+        );
+
+        let expected_rate = 0.0498;
+
+        assert!(
+            (rate - expected_rate).abs() < 0.0001,
+            "Got: {}, Expected: {}",
+            rate,
+            expected_rate
+        );
+    }
+
+    #[test]
+    fn interest_rate_check_medium() {
+        let rate = parity_interest_rate(
             &[8.247, 8.247, 8.247, 8.247, 8.247, 8.247, 8.247, 8.247],
             &[5.785, 5.785, 5.785, 5.785, 5.785, 5.785, 5.785, 5.785],
             &[100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],

@@ -62,10 +62,15 @@ cargo test
 
 Calculated on a Macbook M1:
 
-For ~25000 options (~25x speed-up):
+Calculating implied volatility for ~25000 options (~25x speed-up):
 
 - `bs::implied_vol()` (single): ~25.2ms
 - `vol32x8::implied_vol()` (SIMD and multithreaded): ~1ms
+
+Calculating interest rate using Put-Call parity for ~25000 options (~2x speed-up):
+
+- `bs::parity_interest_rate()` (single): ~91.683 µs
+- `vol32x8::parity_interest_rate()` (SIMD and multithreaded): ~56.079 µs
 
 # Extensions
 

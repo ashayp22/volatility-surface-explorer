@@ -195,7 +195,7 @@ pub(crate) fn implied_vol_f32x8(
 }
 
 // Apply put call parity to determine interest rate
-pub(crate) fn interest_rate_f32x8(
+pub(crate) fn parity_interest_rate_f32x8(
     call_price: f32x8,
     put_price: f32x8,
     spot: f32x8,
@@ -214,7 +214,7 @@ mod tests {
     #[test]
     fn interest_rate_check_small() {
         let interest_rate: [f32; 8] = cast(
-            interest_rate_f32x8(
+            parity_interest_rate_f32x8(
                 (8.247).into(),
                 (5.785).into(),
                 (100.0).into(),
@@ -264,7 +264,7 @@ mod tests {
             );
 
             let interest_rate: [f32; 8] = cast(
-                interest_rate_f32x8(
+                parity_interest_rate_f32x8(
                     call_price,
                     put_price,
                     spot.into(),

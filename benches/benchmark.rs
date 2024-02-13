@@ -6,7 +6,7 @@ use simd_vol::{
 };
 use criterion::{criterion_group, criterion_main, Criterion};
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn implied_vol_criterion_benchmark(c: &mut Criterion) {
     let (spot, call_prices, call_strikes, _, _, years_to_expiry, _) =
     read_hist::get_appl_data();
 
@@ -44,5 +44,35 @@ fn criterion_benchmark(c: &mut Criterion) {
     }));
 }
 
-criterion_group!(benches, criterion_benchmark);
+fn parity_interest_rate_criterion_benchmark(c: &mut Criterion) {
+    let (spot, call_prices, call_strikes, put_prices, _, years_to_expiry, _) =
+    read_hist::get_appl_data();
+
+    let n = call_prices.len();
+    let spot: Vec<f32> = vec![spot; n];
+
+    c.bench_function("parity_interest_rate single", |b| b.iter(|| {
+        for i in 0..n {
+            let _ = bs::parity_interest_rate(
+                call_prices[i],
+                put_prices[i],
+                call_strikes[i],
+                call_strikes[i],
+                years_to_expiry[i],
+            );
+        }
+    }));
+
+    c.bench_function("parity_interest_rate f32x8", |b| b.iter(|| {
+        let _ = vol32x8::parity_interest_rate(
+            &call_prices,
+            &put_prices,
+            &call_strikes,
+            &call_strikes,
+            &years_to_expiry,
+        );
+    }));
+}
+
+criterion_group!(benches, implied_vol_criterion_benchmark, parity_interest_rate_criterion_benchmark);
 criterion_main!(benches);

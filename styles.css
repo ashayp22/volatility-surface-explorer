@@ -12,6 +12,7 @@ select {
 
 #container {
   margin-top: 25px;
+  margin-bottom: 25px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -127,7 +128,7 @@ input::file-selector-button:hover {
 /* Modal Content/Box */
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 5% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
   width: 80%; /* Could be more or less, depending on screen size */
@@ -159,4 +160,10 @@ input::file-selector-button:hover {
   padding: 2px;
   padding-left: 6px;
   padding-right: 6px;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

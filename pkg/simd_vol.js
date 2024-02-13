@@ -88,6 +88,29 @@ export function implied_vol(option_dir, price, spot, strike, risk_free_rate, div
 }
 
 /**
+* @param {Float32Array} call_price
+* @param {Float32Array} put_price
+* @param {Float32Array} spot
+* @param {Float32Array} strike
+* @param {Float32Array} years_to_expiry
+* @returns {number}
+*/
+export function parity_interest_rate(call_price, put_price, spot, strike, years_to_expiry) {
+    const ptr0 = passArrayF32ToWasm0(call_price, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArrayF32ToWasm0(put_price, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArrayF32ToWasm0(spot, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArrayF32ToWasm0(strike, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ptr4 = passArrayF32ToWasm0(years_to_expiry, wasm.__wbindgen_malloc);
+    const len4 = WASM_VECTOR_LEN;
+    const ret = wasm.parity_interest_rate(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
+    return ret;
+}
+
+/**
 * Specify whether an option is put or call
 */
 export const OptionDir = Object.freeze({ CALL:2,"2":"CALL",PUT:1,"1":"PUT", });

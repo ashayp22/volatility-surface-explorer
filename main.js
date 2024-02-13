@@ -1,4 +1,4 @@
-import init, { OptionDir, implied_vol } from "./pkg/simd_vol.js";
+import init, { OptionDir, implied_vol, parity_interest_rate } from "./pkg/simd_vol.js";
 import { AAPL_DATA, SPY_DATA } from "./js/data.js";
 import { plot2D, plot3D } from "./js/plot.js";
 import { parseOptionData } from "./js/parse.js";
@@ -64,12 +64,17 @@ function handlePlotTypeChange() {
 }
 
 function handleInterestRateChange() {
+    // Hide for faster 3D graph updates
+    hide2D();
+
     var selectedValue = document.getElementById("interestRate").value;
     interest_rate = parseInt(selectedValue, 10) / 1000.0;
     update(true);
 }
 
 function handleDividendYieldChange() {
+    hide2D();
+
     var selectedValue = document.getElementById("dividendYield").value;
     dividend_yield = parseInt(selectedValue, 10) / 1000.0;
     update(true);
@@ -98,6 +103,21 @@ function handleOptionFileChange() {
     fr.readAsText(this.files[0]);
 }
 
+function handleSetRates() {
+    hide2D();
+
+    const n = years_to_expiry.length;
+    const spots = Array(n).fill(spot);
+    const strikes = isCall ? call_strikes : put_strikes;
+
+    let theo_interest_rate = parity_interest_rate(call_prices, put_prices, spots, strikes, years_to_expiry);
+
+    interest_rate = theo_interest_rate;
+    dividend_yield = 0.0;
+
+    update(true);
+}
+
 // Responds to user changing volatility surface inputs
 document.getElementById("dataSelect").addEventListener("change", handleDataTypeChange);
 document.getElementById("optionSelect").addEventListener("change", handleOptionTypeChange);
@@ -106,6 +126,13 @@ document.getElementById("dividendYield").addEventListener("input", handleDividen
 document.getElementById("plotType").addEventListener("change", handlePlotTypeChange);
 document.getElementById("see2DButton").addEventListener("click", toggle2D);
 document.getElementById('inputfile').addEventListener('change', handleOptionFileChange);
+document.getElementById("theoRates").addEventListener("click", handleSetRates);
+
+function hide2D() {
+    if (shouldPlot2D) {
+        toggle2D();
+    }
+}
 
 function toggle2D() {
     shouldPlot2D = !shouldPlot2D;

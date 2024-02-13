@@ -158,3 +158,14 @@ pub fn implied_vol(
 
     impl_vol
 }
+
+// Apply put call parity to determine interest rate
+pub fn parity_interest_rate(
+    call_price: f32,
+    put_price: f32,
+    spot: f32,
+    strike: f32,
+    years_to_expiry: f32
+) -> f32 {
+    return (strike / (spot - call_price + put_price)).ln() / years_to_expiry;
+}

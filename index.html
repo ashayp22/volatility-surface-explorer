@@ -58,7 +58,6 @@
           <option value="lines">Line</option>
         </select>
       </div>
-      
 
       <div class="settingsContainer">
         <p id="interestRateText">Interest Rate</p>
@@ -69,13 +68,20 @@
         <p id="dividendYieldText">Dividend Yield</p>
         <input type="range" min="0" max="100" value="0" id="dividendYield">
       </div>
-
+    </div>
+    <hr>
+    <div class="settingsContainer">
+      <button id="theoRates" class="primaryButton">Calculate Put-Call Parity Interest Rate</button>
     </div>
     <div id ="info3d"></div>
 
     <button id="see2DButton" class="primaryButton">View Implied Vol vs Strike Plots</button>
     <div id="info2d"></div>
   </div>
+
+  <footer>
+    <p>Copyright &copy; 2024 Ashay Parikh</p>
+  </footer>
 
   <div id="howToModal" class="modal">
     <div class="modal-content">
