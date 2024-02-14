@@ -68,7 +68,7 @@ function handleInterestRateChange() {
     hide2D();
 
     var selectedValue = document.getElementById("interestRate").value;
-    interest_rate = parseInt(selectedValue, 10) / 1000.0;
+    interest_rate = parseFloat(selectedValue) / 1000.0;
     update(true);
 }
 
@@ -76,7 +76,7 @@ function handleDividendYieldChange() {
     hide2D();
 
     var selectedValue = document.getElementById("dividendYield").value;
-    dividend_yield = parseInt(selectedValue, 10) / 1000.0;
+    dividend_yield = parseFloat(selectedValue) / 1000.0;
     update(true);
 }
 
@@ -114,6 +114,10 @@ function handleSetRates() {
 
     interest_rate = theo_interest_rate;
     dividend_yield = 0.0;
+
+
+    document.getElementById("interestRate").value = parseInt(theo_interest_rate * 1000.0);
+    document.getElementById("dividendYield").value = 0;
 
     update(true);
 }
